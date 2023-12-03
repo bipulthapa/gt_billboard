@@ -81,7 +81,10 @@ def generate_random_scores(num_billboards, advertiser_index, seed=None, ):
 
     return {f'B{i+1}': [random.randint(1, 10) for _ in range(6)] if random.random() < 0.75 else None for i in range(num_billboards)}
 
-def analyze_ip_ranks(advertiser_preferences, base_prices):
+def analyze_ip_ranks(advertiser_preferences, base_prices, seed=None):
+    if seed is not None:
+        np.random.seed(seed)
+
     allocation_records = []
 
     for billboard in advertiser_preferences.columns:
@@ -104,7 +107,8 @@ def analyze_ip_ranks(advertiser_preferences, base_prices):
 
 num_billboards = 4
 num_advertisers = 4
-val_seed = 42
+score_seed = 42
+analyze_seed = 10
 
 # Initialize the DataFrame
 advertiser_preferences = pd.DataFrame(index=[f'A{i+1}' for i in range(num_advertisers)], columns=[f'B{i+1}' for i in range(num_billboards)])
@@ -113,7 +117,7 @@ advertiser_preferences = pd.DataFrame(index=[f'A{i+1}' for i in range(num_advert
 base_prices = {'B1': 1000, 'B2': 1200, 'B3': 1100, 'B4': 1050}
 
 for i in range(num_advertisers):
-    scores = generate_random_scores(num_billboards, i, val_seed)
+    scores = generate_random_scores(num_billboards, i, score_seed)
     print(f"score: {scores}")
     ranks = find_advertiser_rank(num_billboards, scores)
     print(f"Advertiser Ranks: {ranks}")
@@ -122,6 +126,6 @@ for i in range(num_advertisers):
             advertiser_preferences.at[f'A{i+1}', billboard] = rank
 
 # print(f"final advertiser_preferences: {advertiser_preferences}")
-final_allocation = analyze_ip_ranks(advertiser_preferences, base_prices)
+final_allocation = analyze_ip_ranks(advertiser_preferences, base_prices, analyze_seed)
 print(final_allocation)
 
