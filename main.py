@@ -134,8 +134,8 @@ def generate_dynamic_billboard_pricing(num_billboards, seed=None):
     return prices
 
 
-num_billboards = 4
-num_advertisers = 4
+num_billboards = 10
+num_advertisers = 50
 score_seed = 42
 analyze_seed = 10
 
