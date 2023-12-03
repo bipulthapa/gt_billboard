@@ -105,6 +105,35 @@ def analyze_ip_ranks(advertiser_preferences, base_prices, seed=None):
 
     return pd.DataFrame(allocation_records)
 
+def generate_dynamic_billboard_pricing(num_billboards, seed=None):
+    """
+    Generate dynamic pricing for billboards with realistic market values.
+    :param num_billboards: Number of available billboards.
+    :param seed: Seed value for random number generation.
+    :return: Dictionary with billboard as key and dynamic price as value.
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    # Realistic base pricing factors
+    urban_base_price = 2000  # Base price for urban/high-traffic areas
+    suburban_base_price = 1500  # Base price for suburban areas
+    rural_base_price = 1000  # Base price for rural/low-traffic areas
+
+    # Price variation range
+    price_variation = 300  # Variation in price
+
+    # Assigning prices based on hypothetical location types
+    location_types = ['urban', 'suburban', 'rural']
+    prices = {}
+    for i in range(num_billboards):
+        location = random.choice(location_types)
+        base_price = urban_base_price if location == 'urban' else suburban_base_price if location == 'suburban' else rural_base_price
+        prices[f'B{i+1}'] = base_price + random.randint(-price_variation, price_variation)
+
+    return prices
+
+
 num_billboards = 4
 num_advertisers = 4
 score_seed = 42
@@ -114,7 +143,8 @@ analyze_seed = 10
 advertiser_preferences = pd.DataFrame(index=[f'A{i+1}' for i in range(num_advertisers)], columns=[f'B{i+1}' for i in range(num_billboards)])
 
 # Set Dynamic base prices for each billboard by the owner
-base_prices = {'B1': 1000, 'B2': 1200, 'B3': 1100, 'B4': 1050}
+base_prices = generate_dynamic_billboard_pricing(num_billboards, analyze_seed)
+print(f"Base price: {base_prices}")
 
 for i in range(num_advertisers):
     scores = generate_random_scores(num_billboards, i, score_seed)
