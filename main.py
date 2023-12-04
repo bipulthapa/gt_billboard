@@ -100,10 +100,13 @@ def analyze_ip_ranks(advertiser_preferences, base_prices, seed=None):
                 allocation_records.append({'Advertiser': advertiser, 'Billboard': billboard, 'Price': current_base_price})
             else:
                 bids = {advertiser: np.random.uniform(1.5 * current_base_price, 2 * current_base_price) for advertiser in top_preferences.index}
+                all_bids[billboard].extend(bids.values())  # Add all bids to all_bids
                 winner, price = vcg_second_bid_auction(bids)
                 allocation_records.append({'Advertiser': winner, 'Billboard': billboard, 'Price': price})
 
-    return pd.DataFrame(allocation_records)
+    all_bids_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in all_bids.items()]))
+
+    return pd.DataFrame(allocation_records), all_bids_df
 
 def generate_dynamic_billboard_pricing(num_billboards, seed=None):
     """
@@ -134,28 +137,30 @@ def generate_dynamic_billboard_pricing(num_billboards, seed=None):
     return prices
 
 
-num_billboards = 10
-num_advertisers = 50
+num_billboards = 20
+num_advertisers = 200
 score_seed = 42
 analyze_seed = 10
 
 # Initialize the DataFrame
 advertiser_preferences = pd.DataFrame(index=[f'A{i+1}' for i in range(num_advertisers)], columns=[f'B{i+1}' for i in range(num_billboards)])
 
+all_bids = {billboard: [] for billboard in advertiser_preferences.columns}  # Initialize a dict to store all bids
+
 # Set Dynamic base prices for each billboard by the owner
 base_prices = generate_dynamic_billboard_pricing(num_billboards, analyze_seed)
-print(f"Base price: {base_prices}")
+# print(f"Base price: {base_prices}")
 
 for i in range(num_advertisers):
     scores = generate_random_scores(num_billboards, i, score_seed)
-    print(f"score: {scores}")
+    # print(f"score: {scores}")
     ranks = find_advertiser_rank(num_billboards, scores)
-    print(f"Advertiser Ranks: {ranks}")
+    # print(f"Advertiser Ranks: {ranks}")
     if ranks:
         for billboard, rank in ranks.items():
             advertiser_preferences.at[f'A{i+1}', billboard] = rank
 
 # print(f"final advertiser_preferences: {advertiser_preferences}")
-final_allocation = analyze_ip_ranks(advertiser_preferences, base_prices, analyze_seed)
+final_allocation, all_bids_df = analyze_ip_ranks(advertiser_preferences, base_prices, analyze_seed)
 print(final_allocation)
 
