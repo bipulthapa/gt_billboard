@@ -69,7 +69,8 @@ ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
 ax.tick_params(axis='both', which='major', labelsize=12)
 
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-plt.xlim(0, num_advertisers)
+plt.subplots_adjust(left=0.1, right=0.95, top=0.9, bottom=0.1)
+plt.xlim(0, num_advertisers + 1)
 
 plt.xticks(range(0, num_advertisers + 1, 5))
 
